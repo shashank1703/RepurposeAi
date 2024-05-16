@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Content Editor - RepurposeAI</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #4a90e2; /* Blue */
+            color: white;
+            padding: 10px 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo {
+            font-size: 1.8em;
+            font-weight: bold;
+        }
+
+        main {
+            padding: 20px;
+        }
+
+        .editor-container {
+            max-width: 800px;
+            margin: 20px auto;
+            background-color: #f9f9f9; /* Light background */
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+
+        .editor-title {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .editor {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            height: 300px;
+            width: 100%;
+        }
+
+        button {
+            padding: 12px 30px;
+            font-size: 1em;
+            cursor: pointer;
+            background-color: #4a90e2; /* Blue */
+            border: none;
+            color: white;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #357abd; /* Darker blue */
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">RepurposeAI</div>
+    </header>
+
+    <main>
+        <div class="editor-container">
+            <h1 class="editor-title">Content Editor</h1>
+            <div id="editor"></div>
+            <button onclick="saveContent()">Save Content</button>
+        </div>
+    </main>
+
+    <!-- Include CKEditor JavaScript -->
+    <script src="https://cdn.ckeditor.com/4.16.2/standard/ckeditor.js"></script>
+    
+    <script>
+        // Initialize CKEditor
+        CKEDITOR.replace('editor');
+
+        function saveContent() {
+            const content = CKEDITOR.instances.editor.getData();
+            // You can add code here to save the content to your backend or perform other actions.
+            alert('Content saved successfully!');
+        }
+    </script>
+</body>
+</html>

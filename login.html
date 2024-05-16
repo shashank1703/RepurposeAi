@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - AI Content Repurposing Tool</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            background-color: #e8f5e9; /* Light green background */
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #238728; /* Dark green */
+            padding: 10px 20px;
+            color: white;
+        }
+
+        .logo {
+            font-size: 1.5em;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 15px;
+            margin: 0;
+            padding: 0;
+        }
+
+        nav button {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 1em;
+        }
+
+        .login-form {
+            max-width: 400px;
+            margin: 50px auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            background-color: white;
+            text-align: center;
+        }
+
+        .login-form h1 {
+            margin-bottom: 20px;
+            color: #2e7d32; /* Dark green */
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .form-group input {
+            width: calc(100% - 20px);
+            padding: 8px 10px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 1em;
+            cursor: pointer;
+            background-color: #4caf50; /* Green */
+            border: none;
+            color: white;
+            border-radius: 3px;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #388e3c; /* Darker green */
+        }
+
+        footer {
+            background-color: #2e7d32; /* Dark green */
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .footer-links a, .social-media a {
+            color: white;
+            margin: 0 10px;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">RepurposeAI</div>
+        <nav>
+            <ul>
+                <li><button onclick="navigateTo('index')">Home</button></li>
+                <li><button onclick="navigateTo('features')">Features</button></li>
+                <li><button onclick="navigateTo('pricing')">Pricing</button></li>
+                <li><button onclick="navigateTo('blog')">Blog</button></li>
+                <li><button onclick="navigateTo('about')">About Us</button></li>
+                <li><button onclick="navigateTo('contact')">Contact Us</button></li>
+                <li><button onclick="navigateTo('login')">Login</button></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="login-form">
+            <h1>Login</h1>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <button type="submit">Login</button>
+            </form>
+            <p>Don't have an account? <a href="#" onclick="navigateTo('signup')">Sign Up</a></p>
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-links">
+            <a href="#">Privacy Policy</a>
+            <a href="#">Terms of Service</a>
+        </div>
+        <div class="social-media">
+            <a href="#">Twitter</a>
+            <a href="#">LinkedIn</a>
+            <a href="#">Facebook</a>
+        </div>
+    </footer>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            // Simulate login action
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+    
+            // Perform validation or send login request to server
+            if (email === "test@example.com" && password === "password") {
+                alert('Login successful!');
+                navigateTo('functionality'); // Redirect to functionality page after successful login
+            } else {
+                alert('Invalid email or password. Please try again.');
+            }
+        });
+    
+        function navigateTo(page) {
+            window.location.href = `${page}.html`; // Redirect to the specified page
+        }
+    </script>
+    
+</body>
+</html>
