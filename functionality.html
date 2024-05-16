@@ -47,6 +47,16 @@
             border-radius: 5px;
             height: 300px;
             width: 100%;
+            margin-bottom: 20px;
+        }
+
+        select {
+            padding: 8px;
+            font-size: 1em;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            width: 100%;
+            margin-bottom: 20px;
         }
 
         button {
@@ -73,8 +83,17 @@
     <main>
         <div class="editor-container">
             <h1 class="editor-title">Content Editor</h1>
-            <div id="editor"></div>
-            <button onclick="saveContent()">Save Content</button>
+            <form id="contentForm">
+                <textarea id="editor" class="editor" placeholder="Enter your content here..."></textarea>
+                <select id="platformSelect">
+                    <option value="linkedin">LinkedIn</option>
+                    <option value="instagram">Instagram</option>
+                    <option value="twitter">Twitter</option>
+                </select>
+                <button type="button" onclick="generateResult()">Generate Result</button>
+                <div id="resultEditor" class="editor" style="display: none;"></div>
+                <button type="button" id="editResultBtn" onclick="editResult()" style="display: none;">Edit Result</button>
+            </form>
         </div>
     </main>
 
@@ -85,10 +104,19 @@
         // Initialize CKEditor
         CKEDITOR.replace('editor');
 
-        function saveContent() {
+        function generateResult() {
             const content = CKEDITOR.instances.editor.getData();
-            // You can add code here to save the content to your backend or perform other actions.
-            alert('Content saved successfully!');
+            const platform = document.getElementById('platformSelect').value;
+            // Simulate generating result (replace this with actual processing)
+            const result = `Generated result for ${platform}: ${content}`;
+            document.getElementById('resultEditor').innerHTML = result;
+            document.getElementById('resultEditor').style.display = 'block';
+            document.getElementById('editResultBtn').style.display = 'block';
+        }
+
+        function editResult() {
+            const resultContent = document.getElementById('resultEditor').innerHTML;
+            CKEDITOR.instances.editor.setData(resultContent);
         }
     </script>
 </body>
