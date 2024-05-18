@@ -3,19 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Content Editor - RepurposeAI</title>
+    <title>RepurposeAI - Content Editor</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
+            background: linear-gradient(135deg, #c3ec52, #0ba29d);
         }
 
         header {
-            background-color: #4a90e2; /* Blue */
+            background-color: #4a90e2;
             color: white;
             padding: 10px 20px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            text-align: center;
         }
 
         .logo {
@@ -30,7 +32,7 @@
         .editor-container {
             max-width: 800px;
             margin: 20px auto;
-            background-color: #f9f9f9; /* Light background */
+            background-color: #f9f9f9;
             border-radius: 10px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             padding: 20px;
@@ -42,15 +44,16 @@
             color: #333;
         }
 
-        .editor {
+        .textarea-container, .editor {
             border: 1px solid #ddd;
             border-radius: 5px;
             height: 300px;
             width: 100%;
             margin-bottom: 20px;
+            padding: 10px;
         }
 
-        select {
+        input[type="text"], select {
             padding: 8px;
             font-size: 1em;
             border-radius: 5px;
@@ -63,7 +66,7 @@
             padding: 12px 30px;
             font-size: 1em;
             cursor: pointer;
-            background-color: #4a90e2; /* Blue */
+            background-color: #4a90e2;
             border: none;
             color: white;
             border-radius: 5px;
@@ -71,7 +74,12 @@
         }
 
         button:hover {
-            background-color: #357abd; /* Darker blue */
+            background-color: #357abd;
+        }
+
+        .error {
+            color: red;
+            margin-top: 20px;
         }
     </style>
 </head>
@@ -84,15 +92,20 @@
         <div class="editor-container">
             <h1 class="editor-title">Content Editor</h1>
             <form id="contentForm">
-                <textarea id="editor" class="editor" placeholder="Enter your content here..."></textarea>
+                <input type="text" id="substackUrl" placeholder="Enter Substack URL" required>
+                <textarea id="inputContent" class="textarea-container" placeholder="Fetched Substack post content will appear here..." readonly></textarea>
                 <select id="platformSelect">
                     <option value="linkedin">LinkedIn</option>
-                    <option value="instagram">Instagram</option>
                     <option value="twitter">Twitter</option>
                 </select>
+                <button type="button" onclick="fetchSubstackPost()">Fetch Substack Post</button>
                 <button type="button" onclick="generateResult()">Generate Result</button>
-                <div id="resultEditor" class="editor" style="display: none;"></div>
-                <button type="button" id="editResultBtn" onclick="editResult()" style="display: none;">Edit Result</button>
+                <div id="resultContainer" style="display: none;">
+                    <h2 class="editor-title">Edit Your Result</h2>
+                    <textarea id="resultEditor" class="editor"></textarea>
+                    <button type="button" onclick="postToSocialMedia()">Post to Social Media</button>
+                </div>
+                <div id="errorContainer" class="error" style="display: none;"></div>
             </form>
         </div>
     </main>
@@ -101,22 +114,170 @@
     <script src="https://cdn.ckeditor.com/4.16.2/standard/ckeditor.js"></script>
     
     <script>
-        // Initialize CKEditor
-        CKEDITOR.replace('editor');
+        // Initialize CKEditor for result editor
+        CKEDITOR.replace('resultEditor');
 
-        function generateResult() {
-            const content = CKEDITOR.instances.editor.getData();
-            const platform = document.getElementById('platformSelect').value;
-            // Simulate generating result (replace this with actual processing)
-            const result = `Generated result for ${platform}: ${content}`;
-            document.getElementById('resultEditor').innerHTML = result;
-            document.getElementById('resultEditor').style.display = 'block';
-            document.getElementById('editResultBtn').style.display = 'block';
+        async function fetchSubstackPost() {
+            const url = document.getElementById('substackUrl').value;
+            const inputContent = document.getElementById('inputContent');
+            const errorContainer = document.getElementById('errorContainer');
+            errorContainer.style.display = 'none'; // Hide error container initially
+
+            try {
+                const response = await fetch('/fetchSubstackPost', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ url })
+                });
+
+                if (!response.ok) {
+                    const errorMessage = await response.text();
+                    throw new Error(`Error fetching Substack post: ${response.statusText} - ${errorMessage}`);
+                }
+
+                const data = await response.json();
+                inputContent.value = data.content;
+            } catch (error) {
+                console.error('Error fetching Substack post:', error);
+                errorContainer.textContent = `Error: ${error.message}`;
+                errorContainer.style.display = 'block'; // Show error container
+            }
         }
 
-        function editResult() {
-            const resultContent = document.getElementById('resultEditor').innerHTML;
-            CKEDITOR.instances.editor.setData(resultContent);
+        async function generateResult() {
+            const inputContent = document.getElementById('inputContent').value;
+            const platform = document.getElementById('platformSelect').value;
+            const prompt = `Create a ${platform} post based on the following content:\n\n${inputContent}`;
+            const errorContainer = document.getElementById('errorContainer');
+            errorContainer.style.display = 'none'; // Hide error container initially
+
+            try {
+                const response = await fetch('https://api.openai.com/v1/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer YOUR_OPENAI_API_KEY'
+                    },
+                    body: JSON.stringify({
+                        model: "gpt-3.5-turbo",
+                        messages: [{role: "system", content: prompt}],
+                        max_tokens: 150
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorMessage = await response.text();
+                    throw new Error(`API Error: ${response.statusText} - ${errorMessage}`);
+                }
+
+                const data = await response.json();
+
+                if (data.choices && data.choices.length > 0) {
+                    const resultContent = data.choices[0].message.content.trim();
+
+                    // Set the generated content in CKEditor
+                    CKEDITOR.instances.resultEditor.setData(resultContent);
+
+                    // Display the result container
+                    document.getElementById('resultContainer').style.display = 'block';
+                } else {
+                    throw new Error('No content generated');
+                }
+            } catch (error) {
+                console.error('Error generating result:', error);
+                errorContainer.textContent = `Error: ${error.message}`;
+                errorContainer.style.display = 'block'; // Show error container
+            }
+        }
+
+        async function postToSocialMedia() {
+            const content = CKEDITOR.instances.resultEditor.getData();
+            const platform = document.getElementById('platformSelect').value;
+
+            if (platform === 'linkedin') {
+                await postToLinkedIn(content);
+            } else if (platform === 'twitter') {
+                await postToTwitter(content);
+            }
+        }
+
+        async function postToLinkedIn(content) {
+            const accessToken = 'YOUR_LINKEDIN_ACCESS_TOKEN';
+            const url = 'https://api.linkedin.com/v2/shares';
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`,
+                        'Content-Type': 'application/json',
+                        'X-Restli-Protocol-Version': '2.0.0'
+                    },
+                    body: JSON.stringify({
+                        "content": {
+                            "contentEntities": [
+                                {
+                                    "entityLocation": "https://www.example.com/content.html",
+                                    "thumbnails": [
+                                        {
+                                            "resolvedUrl": "https://www.example.com/image.jpg"
+                                        }
+                                    ]
+                                }
+                            ],
+                            "title": "Test Share with Content"
+                        },
+                        "distribution": {
+                            "linkedInDistributionTarget": {}
+                        },
+                        "owner": "urn:li:person:YOUR_PERSON_URN",
+                        "subject": "Test Share Subject",
+                        "text": {
+                            "text": content
+                        }
+                    })
+                });
+
+                if (response.ok) {
+                    alert('Content posted to LinkedIn successfully!');
+                } else {
+                    const errorMessage = await response.text();
+                    throw new Error(`Error posting to LinkedIn: ${response.statusText} - ${errorMessage}`);
+                }
+            } catch (error) {
+                console.error('Error posting to LinkedIn:', error);
+                alert('Failed to post content to LinkedIn.');
+            }
+        }
+
+        async function postToTwitter(content) {
+            const accessToken = 'YOUR_TWITTER_ACCESS_TOKEN';
+            const url = 'https://api.twitter.com/2/tweets';
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        "text": content
+                    })
+                });
+
+                if (response.ok) {
+                    alert('Content posted to Twitter successfully!');
+                } else {
+                    const errorMessage = await response.text();
+                    throw new Error(`Error posting to Twitter: ${response.statusText} - ${errorMessage}`);
+                }
+            } catch (error) {
+                console.error('Error posting to Twitter:', error);
+                alert('Failed to post content to Twitter.');
+            }
         }
     </script>
 </body>
